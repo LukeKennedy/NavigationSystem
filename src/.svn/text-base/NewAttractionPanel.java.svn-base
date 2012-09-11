@@ -1,0 +1,11 @@
+import javax.swing.JPanel;
+
+/**
+ * @author Luke Kennedy. Created May 17, 2010.
+ */
+public class NewAttractionPanel extends JPanel {
+
+	public NewAttractionPanel(Node node) {
+		
+	}
+}

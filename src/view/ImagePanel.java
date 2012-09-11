@@ -1,0 +1,183 @@
+package view;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+import model.Node;
+
+public class ImagePanel extends JPanel implements MouseListener {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Image img;
+	private NavigationFrame host;
+	private ArrayList<Node> array = new ArrayList<Node>();
+	private ArrayList<Node> tempArray = new ArrayList<Node>();
+	public boolean drawn;
+	private boolean firstPoint = true;
+	private boolean ready;
+
+	public ImagePanel(String img, NavigationFrame host) {
+		this(new ImageIcon(img).getImage(), host);
+	}
+
+	public ImagePanel(Image img, NavigationFrame host) {
+		this.host = host;
+		this.img = img;
+		addMouseListener(this);
+		Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
+		setPreferredSize(size);
+		setMinimumSize(size);
+		setMaximumSize(size);
+		setSize(size);
+		setLayout(null);
+	}
+
+	public void setImage(String img) {
+		this.img = new ImageIcon(img).getImage();
+
+	}
+
+	public void setArray(ArrayList<Node> nodes) {
+		tempArray = new ArrayList<Node>();
+		// reversing array, needed for image panel multiple paths
+		for (int i = nodes.size() - 1; i >= 0; i--) {
+			tempArray.add(nodes.get(i));
+		}
+		if (!drawn) {
+			array = tempArray;
+			ready = false;
+		} else {
+			ready = true;
+			array.remove(array.size() - 1);
+			array.addAll(tempArray);
+		}
+	}
+
+	public void paintComponent(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		g2.drawImage(img, 0, 0, null);
+		if (array.size() == 1) {
+			g2.setStroke(new BasicStroke(3));
+			g2
+					.drawOval(
+							(int) host.getSelectedNode().getPoint().getX() - 25,
+							(int) host.getSelectedNode().getPoint().getY() - 25,
+							50, 50);
+		}
+		if (array.size() > 1) {
+			for (int i = array.size() - 1; i > 0; i--) {
+				g2.setStroke(new BasicStroke(3));
+				g2.drawLine((int) array.get(i - 1).getPoint().getX(),
+						(int) array.get(i - 1).getPoint().getY(), (int) array
+								.get(i).getPoint().getX(), (int) array.get(i)
+								.getPoint().getY());
+				// if (array.get(i)!=array.get(array.size()-1)) {
+				g2.drawOval((int) array.get(i - 1).getPoint().getX() - 15,
+						(int) array.get(i - 1).getPoint().getY() - 15, 30, 30);
+			}
+			g2.drawOval(
+					(int) array.get(array.size() - 1).getPoint().getX() - 25,
+					(int) array.get(array.size() - 1).getPoint().getY() - 25,
+					50, 50);
+		}
+		if (ready) {
+			for (int i = tempArray.size() - 1; i > 0; i--) {
+				g2.setStroke(new BasicStroke(3));
+				g2.setColor(Color.BLUE);
+				g2.drawLine((int) tempArray.get(i - 1).getPoint().getX(),
+						(int) tempArray.get(i - 1).getPoint().getY(),
+						(int) tempArray.get(i).getPoint().getX(),
+						(int) tempArray.get(i).getPoint().getY());
+			}
+		}
+	}
+
+	public void setDrawn() {
+		drawn = true;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent evt) {
+		this.host.setCoord(evt.getPoint());
+		this.host.resetInfoPanel();
+		if (evt.getButton() == MouseEvent.BUTTON1) {
+			host.nearestNode(evt.getPoint());
+			if (host.getSelectedNode().getVisited() == false && !drawn) {
+				if (firstPoint) {
+					repaint();
+					evt.getPoint();
+					array.add(host.getSelectedNode());
+					host.getSelectedNode().setVisited(true);
+					firstPoint = false;
+				} else if (!firstPoint) {
+					if (!array.isEmpty()) {
+						evt.getPoint();
+						array.add(host.getSelectedNode());
+						host.getSelectedNode().setVisited(true);
+						if (!(array == null))
+							host.setArray(array);
+					}
+				}
+			} else if (host.getSelectedNode().getVisited() == false && drawn) {
+				array.add(host.getSelectedNode());
+				host.setArray(array);
+			}
+		}
+		if (evt.getButton() == MouseEvent.BUTTON3) {
+			this.host.nearestNode(evt.getPoint());
+			this.host.getPopUp().show(evt.getComponent(), evt.getX(),
+					evt.getY());
+		}
+	}
+
+	public void clearRoute() {
+		this.host.resetInfoPanel();
+		for (int i = 0; i < array.size() - 1; i++) {
+			array.get(i).setVisited(false);
+		}
+		tempArray.clear();
+		drawn = false;
+		firstPoint = true;
+		array.clear();
+		repaint();
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

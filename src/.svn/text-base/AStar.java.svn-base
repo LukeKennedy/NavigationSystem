@@ -1,0 +1,91 @@
+import java.util.ArrayList;
+import java.util.Queue;
+
+public class AStar {
+	ArrayList<Node> openSet = new ArrayList<Node>();
+	ArrayList<Node> closedSet = new ArrayList<Node>();
+	Node startNode;
+	Node endNode;
+	Graph map;
+	String heuristicType;
+
+	public AStar(Node startNode, Node endNode, Graph map, String heuristic) {
+		this.startNode = startNode;
+		this.heuristicType = heuristic;
+		this.endNode = endNode;
+		for (int temp = 0; temp < map.getListOfNodes().size(); temp++) {
+			map.getListOfNodes().get(temp).pathParent = null;
+		}
+		this.map = map;
+	}
+
+	public ArrayList<Node> search() {
+		return search(this.startNode, this.endNode);
+	}
+
+	public ArrayList<Node> search(Node startNode, Node goalNode) {
+		PriorityQueue<Node> queue = new PriorityQueue<Node>();
+		ArrayList<Node> closedList = new ArrayList<Node>();
+
+		startNode.pathParent = null;
+		Node current = startNode;
+
+		while (!current.equals(endNode)) {
+			for (Node n : current.getNeighborNodes()) {
+				if (!closedList.contains(n)) {
+					if (!queue.contains(n)) {
+						n.pathParent = current;
+						n.setCost(n.distance(current)
+								+ Cost(n, goalNode, heuristicType));
+						queue.add(n);
+					} else {
+						double oldCost = n.getCost();
+						if (n.getCost() < oldCost) {
+							n.pathParent = current;
+							queue.remove(n);
+							n.setCost(n.distance(current)
+									+ Cost(n, goalNode, heuristicType));
+							queue.add(n);
+						}
+					}
+				}
+			}
+			closedList.add(current);
+			current = queue.poll();
+			if (current == null) {
+				return null;
+			}
+		}
+		return this.reconstructPath(current);
+	}
+
+	protected ArrayList<Node> reconstructPath(Node node) {
+		ArrayList<Node> path = new ArrayList<Node>();
+		while (node.pathParent != null) {
+			path.add(node);
+			node = node.pathParent;
+		}
+		path.add(node);
+		return path;
+	}
+
+	public Double Cost(Node neighborNode, Node goalNode, String heuristic) {
+		Double cost = 0.0;
+		if (heuristic == "Most Girls") {
+			cost = Math.sqrt(neighborNode.getWomenCost()
+					* neighborNode.getWomenCost() + goalNode.getWomenCost()
+					* goalNode.getWomenCost()) * 10;
+		} else if (heuristic == "Least Time") {
+			cost = Math.sqrt(neighborNode.getTimeCost()
+					* neighborNode.getTimeCost() + goalNode.getTimeCost()
+					* goalNode.getTimeCost()) * 10;
+		} else {
+			cost = neighborNode.getPoint().distance(goalNode.getPoint());
+		}
+		return cost;
+	}
+
+	public void setHeuristic(String string) {
+		this.heuristicType = string;
+	}
+}
