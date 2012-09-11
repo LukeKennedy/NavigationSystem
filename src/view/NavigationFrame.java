@@ -28,6 +28,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import controller.MasterController;
+
 import model.AStar;
 import model.Attractions;
 import model.Graph;
@@ -35,15 +37,10 @@ import model.Neighbor;
 import model.Node;
 import model.TESTNode;
 
-
 @SuppressWarnings("serial")
-public class NavigationFrame extends JFrame implements PropertyChangeListener,
-		KeyListener, ActionListener {
-	private Graph graph;
+public class NavigationFrame extends JFrame implements PropertyChangeListener, ActionListener {
 	private ImagePanel mainPanel;
 	private InfoPanel infoPanel;
-	private JMenuBar menuBar;
-	private ArrayList<Node> nodes = new ArrayList<Node>();
 	private JComboBox fromBox = new JComboBox();
 	private JComboBox toBox = new JComboBox();
 	private JPopupMenu popUp = new JPopupMenu();
@@ -55,156 +52,21 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 	public JComboBox searchBox;
 	private String heuristicType;
 	private NavigationFrame frame = this;
+	private MasterController masterController;
 
-	public NavigationFrame(final Graph graph,
-			final HashMap<String, Node> hashTable) {
-
+	public NavigationFrame(final HashMap<String, Node> hashTable,
+			MasterController master) {
+		masterController = master;
 		hash = hashTable;
-		this.graph = graph;
-		this.nodes.add(null);
-		this.nodes.add(null);
-		this.setSize(new Dimension(1045, 570));
-		this.setResizable(false);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("RHIT Navigation System");
-		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-		this.setVisible(true);
-		this.setIconImage(new ImageIcon("globe_green.png").getImage());
-		this.setMinimumSize(new Dimension(1024, 503));
-		this.setPreferredSize(new Dimension(1024, 503));
-		this.addKeyListener(this);
+		
+		setFrameProperties();
+		
 		mainPanel = new ImagePanel("map.jpg", this);
-		infoPanel = new InfoPanel();
-		menuBar = new JMenuBar();
-		JMenu fileMenu = new JMenu();
-		JMenuItem Open = new JMenuItem();
-		JMenuItem Exit = new JMenuItem();
-		JMenu ViewMenu = new JMenu();
-		JRadioButtonMenuItem radioButtonMapView = new JRadioButtonMenuItem();
-		JRadioButtonMenuItem radioButtonSatiliteView = new JRadioButtonMenuItem();
-		JMenuItem displayTopAttr = new JMenuItem("Top Attractions");
-		ViewMenu.add(displayTopAttr);
-
-		displayTopAttr.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ArrayList<Attractions> temp = frame.displayTopAttr();
-				infoPanel.hide();
-				infoPanel.getDirections().setVisible(true);
-				String tempStr = "";
-				for (int count = 0; count < temp.size(); count++) {
-					tempStr = tempStr
-							+ temp.get(temp.size() - count - 1).name
-							+ "\n                                                 Rating: "
-							+ temp.get(temp.size() - count - 1).getRating()
-							+ "\n";
-				}
-				infoPanel.getDirections().setText(tempStr);
-			}
-		});
-
-		JMenuItem popupInsert = new JMenuItem("Insert Destination");
-		popupInsert.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				NewObjectFrame frame = new NewObjectFrame(
-						NewObjectFrame.frameType.Node, null,
-						(int) coord.getX(), (int) coord.getY(), graph,
-						hashTable, NavigationFrame.this.frame);
-			}
-		});
-		popUp.add(popupInsert);
-
-		JMenuItem popupDelete = new JMenuItem("Remove Destination");
-		popupDelete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ArrayList<Neighbor> temp = infoPanel.getSelectedNode()
-						.getNeighbors();
-				for (Neighbor T : temp) {
-					T.getNode().removeNeighbor(infoPanel.getSelectedNode());
-				}
-				graph.remove(infoPanel.getSelectedNode());
-				hashTable
-						.remove(infoPanel.getSelectedNode().name.toLowerCase());
-				nearestNode(coord);
-				mainPanel.clearRoute();
-			}
-		});
-		popUp.add(popupDelete);
-
-		JMenuItem popupClear = new JMenuItem("Clear Route");
-		popupClear.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mainPanel.clearRoute();
-			}
-		});
-		popUp.add(popupClear);
-
 		mainPanel.setMaximumSize(new Dimension(1024, 503));
-
-		fileMenu.setText("File");
-		this.menuBar.setVisible(true);
-		Open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_N,
-				InputEvent.CTRL_MASK));
-		Open.setText("Add Location");
-		fileMenu.add(Open);
-
-		Open.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-
-		Exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-				InputEvent.CTRL_MASK));
-		Exit.addActionListener(this);
-		Exit.setText("Exit");
-		fileMenu.add(Exit);
-
-		Exit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-
-		menuBar.add(fileMenu);
-
-		ViewMenu.setText("View");
-
-		radioButtonMapView.setSelected(true);
-		radioButtonMapView.setText("Map");
-		radioButtonMapView.addActionListener((new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				NavigationFrame.this.mainPanel.setImage("map.jpg");
-				NavigationFrame.this.mainPanel.repaint();
-			}
-
-		}));
-		ViewMenu.add(radioButtonMapView);
-
-		radioButtonSatiliteView.setSelected(false);
-		radioButtonSatiliteView.setText("Satilite");
-		radioButtonSatiliteView.addActionListener((new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				NavigationFrame.this.mainPanel.setImage("Satilite.jpg");
-				NavigationFrame.this.mainPanel.repaint();
-			}
-
-		}));
-		ViewMenu.add(radioButtonSatiliteView);
-
-		ButtonGroup mapView = new ButtonGroup();
-		mapView.add(radioButtonMapView);
-		mapView.add(radioButtonSatiliteView);
-
-		menuBar.add(ViewMenu);
-		JLabel toLabel = new JLabel();
-		toLabel.setText("  To:  ");
-		menuBar.add(toLabel);
+		infoPanel = new InfoPanel();
+		createRightClickMenu();
+		
 		toBox.addItem(null);
-
 		for (int x = 0; x < this.graph.toArrayList().size(); x++) {
 			toBox.addItem(this.graph.toArrayList().get(x));
 		}
@@ -325,9 +187,12 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(searchBox.getSelectedIndex()==0) heuristicType = "Least Distance";
-				else if(searchBox.getSelectedIndex()==1) heuristicType = "Least Time";
-				else heuristicType  = "Most Girls";
+				if (searchBox.getSelectedIndex() == 0)
+					heuristicType = "Least Distance";
+				else if (searchBox.getSelectedIndex() == 1)
+					heuristicType = "Least Time";
+				else
+					heuristicType = "Most Girls";
 				NavigationFrame.this.mainPanel.clearRoute();
 			}
 
@@ -353,9 +218,150 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 		this.infoPanel.setPreferredSize(new Dimension(224, 503));
 		this.infoPanel.setBackground(Color.WHITE);
 
-		this.add(this.menuBar);
+		this.add(createMenuBar());
 		this.add(mainPanel);
 		this.add(this.infoPanel);
+	}
+
+	private JMenuBar createMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+		JMenu fileMenu = new JMenu();
+		JMenuItem Open = new JMenuItem();
+		JMenuItem Exit = new JMenuItem();
+		JMenu ViewMenu = new JMenu();
+		JRadioButtonMenuItem radioButtonMapView = new JRadioButtonMenuItem();
+		JRadioButtonMenuItem radioButtonSatiliteView = new JRadioButtonMenuItem();
+		JMenuItem displayTopAttr = new JMenuItem("Top Attractions");
+		ViewMenu.add(displayTopAttr);
+
+		displayTopAttr.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<Attractions> temp = frame.displayTopAttr();
+				infoPanel.hide();
+				infoPanel.getDirections().setVisible(true);
+				String tempStr = "";
+				for (int count = 0; count < temp.size(); count++) {
+					tempStr = tempStr
+							+ temp.get(temp.size() - count - 1).name
+							+ "\n                                                 Rating: "
+							+ temp.get(temp.size() - count - 1).getRating()
+							+ "\n";
+				}
+				infoPanel.getDirections().setText(tempStr);
+			}
+		});
+
+		fileMenu.setText("File");
+		menuBar.setVisible(true);
+		Open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_N,
+				InputEvent.CTRL_MASK));
+		Open.setText("Add Location");
+		fileMenu.add(Open);
+
+		Open.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+
+		Exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+				InputEvent.CTRL_MASK));
+		Exit.addActionListener(this);
+		Exit.setText("Exit");
+		fileMenu.add(Exit);
+
+		Exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+
+		menuBar.add(fileMenu);
+
+		ViewMenu.setText("View");
+
+		radioButtonMapView.setSelected(true);
+		radioButtonMapView.setText("Map");
+		radioButtonMapView.addActionListener((new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				NavigationFrame.this.mainPanel.setImage("map.jpg");
+				NavigationFrame.this.mainPanel.repaint();
+			}
+
+		}));
+		ViewMenu.add(radioButtonMapView);
+
+		radioButtonSatiliteView.setSelected(false);
+		radioButtonSatiliteView.setText("Satilite");
+		radioButtonSatiliteView.addActionListener((new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				NavigationFrame.this.mainPanel.setImage("Satilite.jpg");
+				NavigationFrame.this.mainPanel.repaint();
+			}
+
+		}));
+		ViewMenu.add(radioButtonSatiliteView);
+
+		ButtonGroup mapView = new ButtonGroup();
+		mapView.add(radioButtonMapView);
+		mapView.add(radioButtonSatiliteView);
+
+		menuBar.add(ViewMenu);
+		JLabel toLabel = new JLabel();
+		toLabel.setText("  To:  ");
+		menuBar.add(toLabel);
+		return menuBar;
+	}
+
+	private void setFrameProperties() {
+		this.setSize(new Dimension(1045, 570));
+		this.setResizable(false);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("RHIT Navigation System");
+		this.setLayout(new FlowLayout(FlowLayout.LEFT));
+		this.setVisible(true);
+		this.setIconImage(new ImageIcon("globe_green.png").getImage());
+		this.setMinimumSize(new Dimension(1024, 503));
+		this.setPreferredSize(new Dimension(1024, 503));
+	}
+
+	private void createRightClickMenu() {
+		JMenuItem popupInsert = new JMenuItem("Insert Destination");
+		popupInsert.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				masterController.showNewNodeFrame((int) coord.getX(),
+						(int) coord.getY());
+			}
+		});
+		popUp.add(popupInsert);
+
+		JMenuItem popupDelete = new JMenuItem("Remove Destination");
+		popupDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<Neighbor> temp = infoPanel.getSelectedNode()
+						.getNeighbors();
+				for (Neighbor T : temp) {
+					T.getNode().removeNeighbor(infoPanel.getSelectedNode());
+				}
+				masterController.removeNode(infoPanel.getSelectedNode());
+				nearestNode(coord);
+				mainPanel.clearRoute();
+			}
+		});
+		popUp.add(popupDelete);
+
+		JMenuItem popupClear = new JMenuItem("Clear Route");
+		popupClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.clearRoute();
+			}
+		});
+		popUp.add(popupClear);
+
 	}
 
 	public Node search(String string) {
@@ -432,9 +438,9 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 		this.infoPanel.changeNode(nearestNode);
 	}
 
-	public ArrayList<Node> getArrayOfNodes() {
-		return graph.toArrayList();
-	}
+	// public ArrayList<Node> getArrayOfNodes() {
+	// return graph.toArrayList();
+	// }
 
 	public void addToArray(Node node) {
 		this.nodes.add(node);
@@ -450,22 +456,7 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
-		// 
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// 
-	}
-
-	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
-		//
-	}
-
-	@Override
-	public void keyPressed(KeyEvent arg0) {
 		//
 	}
 
@@ -490,6 +481,4 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 			fromBox.addItem(this.graph.toArrayList().get(x));
 		}
 	}
-	// SVN SUCKS
-
 }

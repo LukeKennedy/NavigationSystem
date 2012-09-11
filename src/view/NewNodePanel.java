@@ -26,6 +26,7 @@ import javax.swing.SwingConstants;
 import model.Attractions;
 import model.Graph;
 import model.Node;
+import controller.NodeController;
 
 
 /**
@@ -33,6 +34,7 @@ import model.Node;
  */
 public class NewNodePanel extends JPanel implements ActionListener {
 
+	private static final long serialVersionUID = -429250999869761353L;
 	private File picture;
 	private JFileChooser picChooser = new JFileChooser();
 	private JButton picButton;
@@ -49,17 +51,16 @@ public class NewNodePanel extends JPanel implements ActionListener {
 	private JTextArea desField = new JTextArea();
 	private JTextField locationX = new JTextField();
 	private JTextField locationY = new JTextField();
-	private NewObjectFrame frame;
+	private NewObjectFrame parentFrame;
 	private JTextField women = new JTextField();
 	private JTextField time = new JTextField();
 	private NavigationFrame navFrame;
 
-	public NewNodePanel(int x, int y, Graph graph, HashMap<String, Node> hash,
-			NewObjectFrame frame, NavigationFrame parent) {
+	public NewNodePanel(NodeController nodeController, int x, int y, Graph graph, HashMap<String, Node> hash,
+			NewObjectFrame frame) {
 		this.hash = hash;
-		this.frame = frame;
+		this.parentFrame = frame;
 		this.graph = graph;
-		navFrame = parent;
 
 		this.location = new Point2D.Double(x, y);
 		// this.setPreferredSize(new Dimension(350, 500));
@@ -200,11 +201,11 @@ public class NewNodePanel extends JPanel implements ActionListener {
 			}
 
 			navFrame.updateLists();
-			frame.dispose();
+			parentFrame.dispose();
 		}
 
 		if (e.getSource() == this.cancelButton) {
-			frame.dispose();
+			parentFrame.dispose();
 		}
 	}
 }

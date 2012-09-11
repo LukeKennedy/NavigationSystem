@@ -10,36 +10,27 @@ import javax.swing.JPanel;
 
 import model.Graph;
 import model.Node;
+import controller.NodeController;
 
 /**
  * @author Luke Kennedy. Created May 17, 2010.
  */
 public class NewObjectFrame extends JFrame {
 
-	public enum frameType {
-		Node, Attraction;
-	}
-
-	public NewObjectFrame(frameType type, Node node, int x, int y, Graph graph,
-			HashMap<String, Node> hash, NavigationFrame frame) {
+	public NewObjectFrame(NodeController nodeController, int x, int y,
+			Graph graph, HashMap<String, Node> hash) {
 		this.setSize(new Dimension(350, 820));
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setTitle("RHIT Navigation System");
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-		this.setVisible(false);
 		this.setVisible(true);
 		this.setIconImage(new ImageIcon("globe_green.png").getImage());
 		this.setMinimumSize(new Dimension(350, 500));
 		this.setPreferredSize(new Dimension(350, 500));
 
-		JPanel thePanel = null;
-		if (type == frameType.Attraction) {
-			//thePanel = new NewAttractionPanel(node);
-
-		} else {
-			thePanel = new NewNodePanel(x, y, graph, hash, this, frame);
-		}
+		JPanel thePanel = new NewNodePanel(nodeController, x, y, graph, hash,
+				this);
 		this.add(thePanel);
 		this.setVisible(true);
 	}
