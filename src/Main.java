@@ -7,8 +7,7 @@ import javax.swing.ImageIcon;
 import model.Attractions;
 import model.Graph;
 import model.Node;
-
-import view.NavigationFrame;
+import controller.MasterController;
 
 /**
  * TODO Put here a description of what this class does.
@@ -23,11 +22,14 @@ public class Main
 	 */
 	public static void main(String[] args)
 	{
-		// Entering default nodes
-		// creating hash table and graph
 		Graph graph = new Graph();
 		HashMap<String, Node> hashTable = new HashMap<String, Node>();
-		// creating nodes
+		setUpCrap(graph, hashTable);
+		
+		new MasterController(graph, hashTable);
+	}
+
+	private static void setUpCrap(Graph graph, HashMap<String, Node> hashTable) {
 		Node ato = new Node(new Point2D.Double(629, 200),
 				"Alpha Tau Omega Fraternity", new ArrayList<Node>(),
 				new ArrayList<Attractions>(), new ImageIcon("ato.jpg")
@@ -462,7 +464,5 @@ public class Main
 		hashTable.put(baseball.name.toLowerCase(), baseball);
 		graph.add(imFields);
 		hashTable.put(imFields.name.toLowerCase(), imFields);
-		NavigationFrame navigationFrame = new NavigationFrame(graph, hashTable);
-		navigationFrame.setVisible(true);
 	}
 }

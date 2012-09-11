@@ -63,8 +63,6 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 		this.graph = graph;
 		this.nodes.add(null);
 		this.nodes.add(null);
-		// this.nodes.add(graph.toArrayList().get(0));
-		// this.nodes.add(graph.toArrayList().get(0));
 		this.setSize(new Dimension(1045, 570));
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -376,8 +374,6 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener,
 		this.nodes = nodes;
 		AStar astar = new AStar(nodes.get(nodes.size() - 2), nodes.get(nodes
 				.size() - 1), graph, this.heuristicType);
-		// ArrayList<Node> tempArray = astar.search(nodes.get(0),
-		// nodes.get(nodes.size()-1));
 		ArrayList<Node> tempArray = astar.search();
 		if (!(tempArray == null)) {
 			this.infoPanel.setDirections(tempArray);
