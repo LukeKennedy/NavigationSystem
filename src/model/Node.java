@@ -1,6 +1,7 @@
 package model;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -139,6 +140,10 @@ public class Node implements Comparable<Node> {
 	{
 		// TODO Auto-generated method stub
 		return timeCost;
+	}
+	
+	public double distance(Point p2){
+		return Math.sqrt(Math.pow(coordinates.x - p2.x, 2) + Math.pow(coordinates.y - p2.y, 2));
 	}
 
 }

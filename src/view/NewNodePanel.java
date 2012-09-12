@@ -181,7 +181,6 @@ public class NewNodePanel extends JPanel implements ActionListener {
 			Point2D.Double point = new Point2D.Double(Integer
 					.parseInt(this.locationX.getText()), Integer
 					.parseInt(this.locationY.getText()));
-			Image icon;
 
 			if (this.nameField.getText() == null
 					|| this.desField.getText() == null)

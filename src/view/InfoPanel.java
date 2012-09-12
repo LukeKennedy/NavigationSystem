@@ -34,7 +34,7 @@ public class InfoPanel extends JPanel implements ActionListener
 	private ImageIcon nodePic = new ImageIcon("RHITDefault.jpg");
 	private JLabel pictureLabel = new JLabel(nodePic, SwingConstants.LEFT);
 	private JTextArea desLabel = new JTextArea(
-			"Rose–Hulman Institute of Technology is a small, private, non-sectarian college specializing in teaching engineering, mathematics, and science. ");
+			"Rose–Hulman Institute of Technology is a small, private, non-sectarian college specializing in teaching engineering, mathematics, and science.");
 	private JComboBox attractionBox = new JComboBox();
 	private JTextArea attNameLabel = new JTextArea();
 	private JTextArea attDesLabel = new JTextArea();
@@ -223,16 +223,15 @@ public class InfoPanel extends JPanel implements ActionListener
 		this.ratingButton.setVisible(false);
 	}
 
-	public void setDirections(ArrayList<Node> temp)
+	public void setDirections(ArrayList<String> directionList)
 	{
 		this.hide();
 		this.directions.setVisible(true);
-		String tempStr = "";
-		for (int count = 0; count < temp.size(); count++)
-		{
-			tempStr = tempStr + temp.get(temp.size() - count - 1).name + "\n";
+		String dirString = "";
+		for(String locationName : directionList) {
+			dirString += locationName + "\n";
 		}
-		this.directions.setText(tempStr);
+		this.directions.setText(dirString);
 	}
 
 	@Override

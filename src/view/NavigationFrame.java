@@ -3,15 +3,12 @@ package view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.ButtonGroup;
@@ -23,204 +20,41 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
-import controller.MasterController;
-
-import model.AStar;
-import model.Attractions;
-import model.Graph;
-import model.Neighbor;
 import model.Node;
 import model.TESTNode;
+import controller.MasterController;
 
 @SuppressWarnings("serial")
-public class NavigationFrame extends JFrame implements PropertyChangeListener, ActionListener {
+public class NavigationFrame extends JFrame implements PropertyChangeListener,
+		ActionListener {
 	private ImagePanel mainPanel;
 	private InfoPanel infoPanel;
-	private JComboBox fromBox = new JComboBox();
-	private JComboBox toBox = new JComboBox();
-	private JPopupMenu popUp = new JPopupMenu();
+	private JComboBox<String> fromBox;
+	private JComboBox<String> toBox;
 	private JTextArea searchBar = new JTextArea("");
-	private Point coord;
-	private JTextField fromBoxComp;
-	private JTextField toBoxComp;
-	private HashMap<String, Node> hash;
-	public JComboBox searchBox;
-	private String heuristicType;
-	private NavigationFrame frame = this;
+	public JComboBox<String> searchBox;
 	private MasterController masterController;
 
 	public NavigationFrame(final HashMap<String, Node> hashTable,
 			MasterController master) {
 		masterController = master;
-		hash = hashTable;
-		
+
 		setFrameProperties();
-		
-		mainPanel = new ImagePanel("map.jpg", this);
+
+		mainPanel = new ImagePanel(masterController, "map.jpg", this);
 		mainPanel.setMaximumSize(new Dimension(1024, 503));
 		infoPanel = new InfoPanel();
-		createRightClickMenu();
-		
-		toBox.addItem(null);
-		for (int x = 0; x < this.graph.toArrayList().size(); x++) {
-			toBox.addItem(this.graph.toArrayList().get(x));
-		}
-		toBox.setEditable(true);
-		toBox.setMaximumSize(new Dimension(250, 20));
 
-		toBoxComp = (JTextField) toBox.getEditor().getEditorComponent();
-		toBoxComp.addKeyListener(new KeyListener() {
-			Node temp;
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					temp = search(NavigationFrame.this.toBoxComp.getText());
-					if (temp != null) {
-						NavigationFrame.this.infoPanel.changeNode(temp);
-						NavigationFrame.this.toBox.setSelectedItem(temp);
-					}
-				}
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// Auto-generated method stub
-
-			}
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-				// Auto-generated method stub
-
-			}
-		});
-
-		toBox.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (Node.class.isInstance(NavigationFrame.this.fromBox
-						.getSelectedItem())) {
-					NavigationFrame.this.nodes.set(1,
-							(Node) NavigationFrame.this.fromBox
-									.getSelectedItem());
-				}
-				if (Node.class.isInstance(NavigationFrame.this.toBox
-						.getSelectedItem())) {
-					NavigationFrame.this.nodes
-							.set(0, (Node) NavigationFrame.this.toBox
-									.getSelectedItem());
-				}
-			}
-
-		});
-		this.menuBar.add(toBox);
-		JLabel fromLabel = new JLabel();
-		fromLabel.setText("  From:  ");
-		menuBar.add(fromLabel);
-
-		this.fromBox = new JComboBox();
-		fromBox.getEditor().getEditorComponent();
-		fromBoxComp = (JTextField) fromBox.getEditor().getEditorComponent();
-		fromBoxComp.addKeyListener(new KeyListener() {
-			Node temp;
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					temp = search(NavigationFrame.this.fromBoxComp.getText());
-					NavigationFrame.this.infoPanel.changeNode(temp);
-					if (temp != null) {
-						NavigationFrame.this.fromBox.setSelectedItem(temp);
-					}
-				}
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-
-			}
-		});
-		fromBox.addItem(null);
-		for (int x = 0; x < this.graph.toArrayList().size(); x++) {
-			fromBox.addItem(this.graph.toArrayList().get(x));
-		}
-		fromBox.setEditable(true);
-		fromBox.setMaximumSize(new Dimension(250, 20));
-		fromBox.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				NavigationFrame.this.nodes.set(1,
-						(Node) NavigationFrame.this.fromBox.getSelectedItem());
-				NavigationFrame.this.nodes.set(0,
-						(Node) NavigationFrame.this.toBox.getSelectedItem());
-			}
-
-		});
-		this.menuBar.add(fromBox);
-
-		JLabel searchLabel = new JLabel();
-		searchLabel.setText("  Navigation Method:  ");
-		menuBar.add(searchLabel);
-
-		searchBox = new JComboBox();
-		searchBox.addItem("Shortest Distance");
-		searchBox.addItem("Least Time");
-		searchBox.addItem("Most Girls");
-		searchBox.setEditable(false);
-		searchBox.setMaximumSize(new Dimension(175, 20));
-		searchBox.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (searchBox.getSelectedIndex() == 0)
-					heuristicType = "Least Distance";
-				else if (searchBox.getSelectedIndex() == 1)
-					heuristicType = "Least Time";
-				else
-					heuristicType = "Most Girls";
-				NavigationFrame.this.mainPanel.clearRoute();
-			}
-
-		});
-		this.menuBar.add(searchBox);
-		searchBar.setVisible(true);
-		searchBar.setAlignmentX(RIGHT_ALIGNMENT);
-		this.menuBar.add(searchBar);
-
-		JButton searchButton = new JButton("Navigate");
-		this.menuBar.add(searchButton);
-		searchButton.addActionListener((new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				NavigationFrame.this.mainPanel.clearRoute();
-				if (NavigationFrame.this.nodes.get(0) != null
-						&& NavigationFrame.this.nodes.get(1) != null)
-					NavigationFrame.this.setArray(NavigationFrame.this.nodes);
-			}
-		}));
-
-		this.mainPanel.setPreferredSize(new Dimension(800, 503));
-		this.infoPanel.setPreferredSize(new Dimension(224, 503));
-		this.infoPanel.setBackground(Color.WHITE);
+		mainPanel.setPreferredSize(new Dimension(800, 503));
+		infoPanel.setPreferredSize(new Dimension(224, 503));
+		infoPanel.setBackground(Color.WHITE);
 
 		this.add(createMenuBar());
 		this.add(mainPanel);
-		this.add(this.infoPanel);
+		this.add(infoPanel);
 	}
 
 	private JMenuBar createMenuBar() {
@@ -231,25 +65,25 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener, A
 		JMenu ViewMenu = new JMenu();
 		JRadioButtonMenuItem radioButtonMapView = new JRadioButtonMenuItem();
 		JRadioButtonMenuItem radioButtonSatiliteView = new JRadioButtonMenuItem();
-		JMenuItem displayTopAttr = new JMenuItem("Top Attractions");
-		ViewMenu.add(displayTopAttr);
-
-		displayTopAttr.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ArrayList<Attractions> temp = frame.displayTopAttr();
-				infoPanel.hide();
-				infoPanel.getDirections().setVisible(true);
-				String tempStr = "";
-				for (int count = 0; count < temp.size(); count++) {
-					tempStr = tempStr
-							+ temp.get(temp.size() - count - 1).name
-							+ "\n                                                 Rating: "
-							+ temp.get(temp.size() - count - 1).getRating()
-							+ "\n";
-				}
-				infoPanel.getDirections().setText(tempStr);
-			}
-		});
+		// JMenuItem displayTopAttr = new JMenuItem("Top Attractions");
+		// ViewMenu.add(displayTopAttr);
+		//
+		// displayTopAttr.addActionListener(new ActionListener() {
+		// public void actionPerformed(ActionEvent e) {
+		// ArrayList<Attractions> temp = frame.displayTopAttr();
+		// infoPanel.hide();
+		// infoPanel.getDirections().setVisible(true);
+		// String tempStr = "";
+		// for (int count = 0; count < temp.size(); count++) {
+		// tempStr = tempStr
+		// + temp.get(temp.size() - count - 1).name
+		// + "\n                                                 Rating: "
+		// + temp.get(temp.size() - count - 1).getRating()
+		// + "\n";
+		// }
+		// infoPanel.getDirections().setText(tempStr);
+		// }
+		// });
 
 		fileMenu.setText("File");
 		menuBar.setVisible(true);
@@ -314,7 +148,67 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener, A
 		JLabel toLabel = new JLabel();
 		toLabel.setText("  To:  ");
 		menuBar.add(toLabel);
+
+		toBox = createLocationSelectorComboBox();
+		menuBar.add(toBox);
+		JLabel fromLabel = new JLabel();
+		fromLabel.setText("  From:  ");
+		menuBar.add(fromLabel);
+
+		fromBox = createLocationSelectorComboBox();
+		menuBar.add(fromBox);
+
+		JLabel searchLabel = new JLabel();
+		searchLabel.setText("  Navigation Method:  ");
+		menuBar.add(searchLabel);
+
+		searchBox = new JComboBox<String>();
+		searchBox.addItem("Shortest Distance");
+		searchBox.addItem("Least Time");
+		searchBox.addItem("Most Girls");
+		searchBox.setEditable(false);
+		searchBox.setMaximumSize(new Dimension(175, 20));
+
+		menuBar.add(searchBox);
+		searchBar.setVisible(true);
+		searchBar.setAlignmentX(RIGHT_ALIGNMENT);
+		menuBar.add(searchBar);
+
+		JButton searchButton = new JButton("Navigate");
+		menuBar.add(searchButton);
+		searchButton.addActionListener((new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (fromBox.getSelectedItem() != null
+						&& toBox.getSelectedItem() != null) {
+					String startLocation = fromBox.getSelectedItem().toString();
+					String endLocation = toBox.getSelectedItem().toString();
+					masterController.doNavigation(getHeuristic(),
+							startLocation, endLocation, mainPanel, infoPanel);
+				}
+			}
+		}));
 		return menuBar;
+	}
+
+	public String getHeuristic() {
+		if (searchBox.getSelectedIndex() == 0)
+			return "Least Distance";
+		else if (searchBox.getSelectedIndex() == 1)
+			return "Least Time";
+		else
+			return "Most Girls";
+	}
+
+	private JComboBox<String> createLocationSelectorComboBox() {
+		JComboBox<String> comboBox = new JComboBox<String>();
+		comboBox.addItem(null);
+		for (String nodeName : masterController.getNodeList()) {
+			comboBox.addItem(nodeName);
+		}
+		comboBox.setEditable(true);
+		comboBox.setMaximumSize(new Dimension(250, 20));
+		return comboBox;
 	}
 
 	private void setFrameProperties() {
@@ -329,126 +223,30 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener, A
 		this.setPreferredSize(new Dimension(1024, 503));
 	}
 
-	private void createRightClickMenu() {
-		JMenuItem popupInsert = new JMenuItem("Insert Destination");
-		popupInsert.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				masterController.showNewNodeFrame((int) coord.getX(),
-						(int) coord.getY());
-			}
-		});
-		popUp.add(popupInsert);
-
-		JMenuItem popupDelete = new JMenuItem("Remove Destination");
-		popupDelete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ArrayList<Neighbor> temp = infoPanel.getSelectedNode()
-						.getNeighbors();
-				for (Neighbor T : temp) {
-					T.getNode().removeNeighbor(infoPanel.getSelectedNode());
-				}
-				masterController.removeNode(infoPanel.getSelectedNode());
-				nearestNode(coord);
-				mainPanel.clearRoute();
-			}
-		});
-		popUp.add(popupDelete);
-
-		JMenuItem popupClear = new JMenuItem("Clear Route");
-		popupClear.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mainPanel.clearRoute();
-			}
-		});
-		popUp.add(popupClear);
-
-	}
-
-	public Node search(String string) {
-		return hash.get(string.toLowerCase());
-	}
-
-	public JPopupMenu getPopUp() {
-		return popUp;
-	}
-
-	public void setPopUp(JPopupMenu popUp) {
-		this.popUp = popUp;
-	}
-
-	public void setArray(ArrayList<Node> nodes) {
-		this.nodes = nodes;
-		AStar astar = new AStar(nodes.get(nodes.size() - 2), nodes.get(nodes
-				.size() - 1), graph, this.heuristicType);
-		ArrayList<Node> tempArray = astar.search();
-		if (!(tempArray == null)) {
-			this.infoPanel.setDirections(tempArray);
-			mainPanel.setArray(tempArray);
-		}
-		mainPanel.repaint();
-		mainPanel.setDrawn();
-	}
-
-	public ArrayList<Attractions> displayTopAttr() {
-		ArrayList<Attractions> RAWR = new ArrayList<Attractions>();
-		double min = 0.0;
-		Attractions smallAttr = null;
-		for (Node K : graph.getListOfNodes()) {
-			for (Attractions T : K.getAttractions()) {
-				if (RAWR.size() < 10) {
-					RAWR.add(T);
-				} else {
-					for (Attractions F : RAWR) {
-						if (F.getRating() < min) {
-							min = F.getRating();
-							smallAttr = F;
-						}
-					}
-					if (T.getRating() > min) {
-						RAWR.remove(smallAttr);
-						RAWR.add(T);
-					}
-				}
-			}
-		}
-		return RAWR;
-	}
-
-	public void nearestNode(Point clicked) {
-		Node nearestNode = new TESTNode(), node1;
-		double smallestDistance = 999999999;
-		int x = 0;
-		double tempDist;
-		if (graph == null || graph.getListOfNodes() == null) {
-			return;
-		}
-		ArrayList<Node> temp = graph.getListOfNodes();
-		while (x < temp.size()) {
-			node1 = temp.get(x);
-			tempDist = Math.sqrt((node1.getPoint().getX() - clicked.getX())
-					* (node1.getPoint().getX() - clicked.getX())
-					+ (node1.getPoint().getY() - clicked.getY())
-					* (node1.getPoint().getY() - clicked.getY()));
-			if (tempDist < smallestDistance && tempDist < 50) {
-				smallestDistance = tempDist;
-				nearestNode = node1;
-			}
-			x++;
-		}
-		this.infoPanel.changeNode(nearestNode);
-	}
-
-	// public ArrayList<Node> getArrayOfNodes() {
-	// return graph.toArrayList();
+	// public ArrayList<Attractions> displayTopAttr() {
+	// ArrayList<Attractions> RAWR = new ArrayList<Attractions>();
+	// double min = 0.0;
+	// Attractions smallAttr = null;
+	// for (Node K : graph.getListOfNodes()) {
+	// for (Attractions T : K.getAttractions()) {
+	// if (RAWR.size() < 10) {
+	// RAWR.add(T);
+	// } else {
+	// for (Attractions F : RAWR) {
+	// if (F.getRating() < min) {
+	// min = F.getRating();
+	// smallAttr = F;
 	// }
-
-	public void addToArray(Node node) {
-		this.nodes.add(node);
-	}
-
-	public Node getSelectedNode() {
-		return this.infoPanel.getSelectedNode();
-	}
+	// }
+	// if (T.getRating() > min) {
+	// RAWR.remove(smallAttr);
+	// RAWR.add(T);
+	// }
+	// }
+	// }
+	// }
+	// return RAWR;
+	// }
 
 	public void resetInfoPanel() {
 		this.infoPanel.changeNode(new TESTNode());
@@ -465,20 +263,18 @@ public class NavigationFrame extends JFrame implements PropertyChangeListener, A
 		//
 	}
 
-	public void setCoord(Point point) {
-		coord = point;
+	public void updateLists() {
+		toBox.removeAllItems();
+		fromBox.removeAllItems();
+		toBox.addItem(null);
+		fromBox.addItem(null);
+		for (String locationName : masterController.getNodeList()) {
+			toBox.addItem(locationName);
+			fromBox.addItem(locationName);
+		}
 	}
 
-	public void updateLists() {
-		this.toBox.removeAllItems();
-		toBox.addItem(null);
-		for (int x = 0; x < this.graph.toArrayList().size(); x++) {
-			toBox.addItem(this.graph.toArrayList().get(x));
-		}
-		this.fromBox.removeAllItems();
-		fromBox.addItem(null);
-		for (int x = 0; x < this.graph.toArrayList().size(); x++) {
-			fromBox.addItem(this.graph.toArrayList().get(x));
-		}
+	public InfoPanel getInfoPanel() {
+		return infoPanel;
 	}
 }
