@@ -148,7 +148,6 @@ public class InfoPanel extends JPanel implements ActionListener
 			this.attractionBox.addItem(this.attractionList.get(x));
 		}
 		this.attractionBox.addActionListener(this);
-		// System.out.println(this.attractionList.size());
 		if (this.attractionList.size() <= 0)
 		{
 			this.attractionBox.setVisible(false);

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 public class PriorityQueue<E extends Comparable<? super E>> extends
 		ArrayList<E> {
 
+	private static final long serialVersionUID = 4762899098379886320L;
+
 	public PriorityQueue() {
 		// Empty
 	}

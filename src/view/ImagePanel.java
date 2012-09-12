@@ -140,8 +140,7 @@ public class ImagePanel extends JPanel implements MouseListener {
 		JMenuItem popupInsert = new JMenuItem("Insert Destination");
 		popupInsert.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// masterController.showNewNodeFrame((int) coord.getX(),
-				// (int) coord.getY());
+				masterController.showNewNodeFrame(clickCoord);
 			}
 		});
 		popUp.add(popupInsert);
@@ -171,5 +170,4 @@ public class ImagePanel extends JPanel implements MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 	}
-
 }

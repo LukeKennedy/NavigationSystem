@@ -3,13 +3,11 @@ package view;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -23,11 +21,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import model.Attractions;
-import model.Graph;
-import model.Node;
 import controller.NodeController;
-
 
 /**
  * @author Luke Kennedy. Created May 17, 2010.
@@ -35,18 +29,16 @@ import controller.NodeController;
 public class NewNodePanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = -429250999869761353L;
+	private NodeController nodeController;
 	private File picture;
 	private JFileChooser picChooser = new JFileChooser();
 	private JButton picButton;
-	private Point2D.Double location;
-	private int x;
-	private int y;
-	private ArrayList<Node> listOfNodes;
+	// private Point2D.Double location;
+	// private int x;
+	// private int y;
 	private ArrayList<JCheckBox> boxList = new ArrayList<JCheckBox>();
 	private JButton addButton = new JButton("Add Destination");
 	private JButton cancelButton = new JButton("Cancel");
-	private HashMap<String, Node> hash;
-	private Graph graph;
 	private JTextField nameField = new JTextField();
 	private JTextArea desField = new JTextArea();
 	private JTextField locationX = new JTextField();
@@ -54,15 +46,13 @@ public class NewNodePanel extends JPanel implements ActionListener {
 	private NewObjectFrame parentFrame;
 	private JTextField women = new JTextField();
 	private JTextField time = new JTextField();
-	private NavigationFrame navFrame;
 
-	public NewNodePanel(NodeController nodeController, int x, int y, Graph graph, HashMap<String, Node> hash,
+	public NewNodePanel(NodeController controller, int x, int y,
 			NewObjectFrame frame) {
-		this.hash = hash;
 		this.parentFrame = frame;
-		this.graph = graph;
+		nodeController = controller;
 
-		this.location = new Point2D.Double(x, y);
+		// location = new Point2D.Double(x, y);
 		// this.setPreferredSize(new Dimension(350, 500));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.setVisible(true);
@@ -120,8 +110,6 @@ public class NewNodePanel extends JPanel implements ActionListener {
 		picButton.addActionListener(this);
 
 		JPanel descriptionPanel = new JPanel();
-		// descriptionPanel.setLayout(new BoxLayout(descriptionPanel,
-		// BoxLayout.Y_AXIS));
 		JLabel desLabel = new JLabel("Description:");
 		desLabel.setAlignmentX(SwingConstants.LEFT);
 		desField.setColumns(22);
@@ -136,14 +124,11 @@ public class NewNodePanel extends JPanel implements ActionListener {
 		neighborPanel.setSize(350, 100);
 		neighborPanel.setPreferredSize(new Dimension(345, 460));
 		neighborPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		listOfNodes = graph.toArrayList();
-		for (Node node : listOfNodes) {
-
-			JCheckBox temp = new JCheckBox(node.toString());
-			if (temp != null) {
-				boxList.add(temp);
-				neighborPanel.add(temp);
-			}
+		ArrayList<String> listOfLocations = nodeController.getNodeList();
+		for (String location : listOfLocations) {
+			JCheckBox checkBox = new JCheckBox(location);
+			boxList.add(checkBox);
+			neighborPanel.add(checkBox);
 		}
 
 		JLabel neighborLabel = new JLabel("Select Neighbors:");
@@ -170,17 +155,15 @@ public class NewNodePanel extends JPanel implements ActionListener {
 			this.picture = this.picChooser.getSelectedFile();
 		}
 		if (e.getSource() == this.addButton) {
-			ArrayList<Node> neighborList = new ArrayList<Node>();
-			int counter = 0;
+			ArrayList<String> neighborList = new ArrayList<String>();
 			for (JCheckBox box : boxList) {
 				if (box.isSelected()) {
-					neighborList.add(this.listOfNodes.get(counter));
+					neighborList.add(box.getText());
 				}
-				counter++;
 			}
-			Point2D.Double point = new Point2D.Double(Integer
-					.parseInt(this.locationX.getText()), Integer
-					.parseInt(this.locationY.getText()));
+			Point2D.Double point = new Point2D.Double(
+					Integer.parseInt(this.locationX.getText()),
+					Integer.parseInt(this.locationY.getText()));
 
 			if (this.nameField.getText() == null
 					|| this.desField.getText() == null)
@@ -189,17 +172,10 @@ public class NewNodePanel extends JPanel implements ActionListener {
 				this.picture = new File("RHITDefault.jpg");
 			}
 
-			Node newNode = new Node(point, this.nameField.getText(),
-					neighborList, new ArrayList<Attractions>(), new ImageIcon(
-							this.picture.toString()).getImage(), this.desField
-							.getText(), 00, 0);
-			this.hash.put(newNode.name, newNode);
-			this.graph.add(newNode);
-			for (Node node : neighborList) {
-				node.addNeighbor(newNode);
-			}
-
-			navFrame.updateLists();
+			nodeController.newNode(point, this.nameField.getText(),
+					neighborList,
+					new ImageIcon(this.picture.toString()).getImage(),
+					this.desField.getText(), 00, 0);
 			parentFrame.dispose();
 		}
 

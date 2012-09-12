@@ -27,8 +27,8 @@ public class Node implements Comparable<Node> {
 			String description, int timeCost, int womenCost) {
 		this.name = name;
 		this.coordinates = coord;
-		for (Node node : neighbors)
-			this.neighbors.add(new Neighbor(this, node));
+		// for (Node node : neighbors)
+		// this.neighbors.add(new Neighbor(this, node));
 		if (attractions != null)
 			this.listOfAttractions = attractions;
 		if (picture != null)
