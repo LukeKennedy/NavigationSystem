@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,7 +18,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import model.Node;
 import controller.MasterController;
 
 public class ImagePanel extends JPanel implements MouseListener {
@@ -32,9 +30,7 @@ public class ImagePanel extends JPanel implements MouseListener {
 	private Image img;
 	private NavigationFrame parent;
 	private ArrayList<Point2D.Double> directionPath;
-	private ArrayList<Node> tempArray = new ArrayList<Node>();
 	public boolean drawn;
-	private boolean ready;
 	private Point clickCoord;
 	private Point selectedLocation;
 	private JPopupMenu rightClickMenu = new JPopupMenu();
@@ -95,16 +91,6 @@ public class ImagePanel extends JPanel implements MouseListener {
 					(int) directionPath.get(directionPath.size() - 1).getX() - 25,
 					(int) directionPath.get(directionPath.size() - 1).getY() - 25,
 					50, 50);
-		}
-		if (ready) {
-			for (int i = tempArray.size() - 1; i > 0; i--) {
-				g2.setStroke(new BasicStroke(3));
-				g2.setColor(Color.BLUE);
-				g2.drawLine((int) tempArray.get(i - 1).getPoint().getX(),
-						(int) tempArray.get(i - 1).getPoint().getY(),
-						(int) tempArray.get(i).getPoint().getX(),
-						(int) tempArray.get(i).getPoint().getY());
-			}
 		}
 	}
 
