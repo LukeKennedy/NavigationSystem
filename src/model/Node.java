@@ -27,8 +27,6 @@ public class Node implements Comparable<Node> {
 			String description, int timeCost, int womenCost) {
 		this.name = name;
 		this.coordinates = coord;
-		// for (Node node : neighbors)
-		// this.neighbors.add(new Neighbor(this, node));
 		if (attractions != null)
 			this.listOfAttractions = attractions;
 		if (picture != null)
@@ -80,10 +78,6 @@ public class Node implements Comparable<Node> {
 
 	public double distance(Node node1) {
 		return node1.getPoint().distance(getPoint());
-		// return Math.sqrt((node1.getPoint().getX() - this.getPoint().getX()) *
-		// (node1.getPoint().getX() - this.getPoint().getX()) +
-		// (node1.getPoint().getY() - this.getPoint().getY())*
-		// (this.getPoint().getY() - this.getPoint().getY()));
 	}
 
 	public boolean removeNeighbor(Node toRemove) {
@@ -131,19 +125,17 @@ public class Node implements Comparable<Node> {
 		return cost;
 	}
 
-	public int getWomenCost()
-	{
+	public int getWomenCost() {
 		return womenCost;
 	}
 
-	public int getTimeCost()
-	{
-		// TODO Auto-generated method stub
+	public int getTimeCost() {
 		return timeCost;
 	}
-	
-	public double distance(Point p2){
-		return Math.sqrt(Math.pow(coordinates.x - p2.x, 2) + Math.pow(coordinates.y - p2.y, 2));
+
+	public double distance(Point p2) {
+		return Math.sqrt(Math.pow(coordinates.x - p2.x, 2)
+				+ Math.pow(coordinates.y - p2.y, 2));
 	}
 
 }

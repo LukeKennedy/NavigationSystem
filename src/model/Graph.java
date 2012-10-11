@@ -1,6 +1,6 @@
 package model;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 
 public class Graph {
 	private ArrayList<Node> listOfNodes = new ArrayList<Node>();
@@ -15,9 +15,6 @@ public class Graph {
 
 	public ArrayList<Node> toArrayList() {
 		return this.listOfNodes;
-	}
-
-	public Graph() {
 	}
 
 	public double getDistance(Node node1, Node node2) {

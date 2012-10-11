@@ -33,9 +33,6 @@ public class NewNodePanel extends JPanel implements ActionListener {
 	private File picture;
 	private JFileChooser picChooser = new JFileChooser();
 	private JButton picButton;
-	// private Point2D.Double location;
-	// private int x;
-	// private int y;
 	private ArrayList<JCheckBox> boxList = new ArrayList<JCheckBox>();
 	private JButton addButton = new JButton("Add Destination");
 	private JButton cancelButton = new JButton("Cancel");
@@ -51,12 +48,8 @@ public class NewNodePanel extends JPanel implements ActionListener {
 			NewObjectFrame frame) {
 		this.parentFrame = frame;
 		nodeController = controller;
-
-		// location = new Point2D.Double(x, y);
-		// this.setPreferredSize(new Dimension(350, 500));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.setVisible(true);
-
 		JLabel titleLabel = new JLabel("Add a Destination");
 		titleLabel.setAlignmentX(SwingConstants.LEFT);
 		titleLabel.setFont(new Font("Serif", Font.BOLD, 18));
